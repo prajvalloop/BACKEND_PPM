@@ -29,6 +29,7 @@ contract PPMMarket is Ownable {
     uint256 public createFeeWei = 0.001 ether;
     uint256 challengeWindow=5 minutes;
     mapping(uint256 => Market) public markets;
+    mapping(uint256 => uint256) public windowClosed;
     mapping(uint256 => mapping(address => uint256)) public yesStake;
     mapping(uint256 => mapping(address=> uint256)) public noStake;
     mapping(uint256 =>mapping(address => bool)) public claimed;
@@ -137,6 +138,7 @@ contract PPMMarket is Ownable {
         require(m.status == Status.AwaitingResolution);
         m.status=Status.Proposed;
         m.proposedAt=block.timestamp;
+        windowClosed[id]=m.proposedAt+challengeWindow;
         if (isYes){
             m.proposedOutcome=1;
         }
@@ -148,6 +150,7 @@ contract PPMMarket is Ownable {
         m.opposeStake=0;
         m.aiSupportVotes=0;
         m.opposeVotes=0;
+        
     }
     function stakeSupport(uint256 id) public payable{
         Market storage m=markets[id];
